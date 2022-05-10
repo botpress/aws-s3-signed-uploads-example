@@ -1,10 +1,8 @@
 import { S3Client } from "@aws-sdk/client-s3";
-import { completeMultiUpload, initiateMultipartUpload } from "./multipart";
-import { generatePresignedUrlsParts } from "./presigned";
+import { generatePresignedUrl } from "./presigned";
 import * as fs from "fs";
 import * as path from "path";
-import { FILE_CHUNK_SIZE } from "./constants";
-import { uploadParts } from "./upload";
+import { uploadFile } from "./upload";
 import * as mime from "mime-types";
 
 const BUCKET_NAME = process.env.BUCKET_NAME;
@@ -18,34 +16,21 @@ async function main() {
 
   const filepath = process.argv[2];
 
-  // Step 1: (client-side) determine chunk count, mime type
+  // Step 1: (client-side) determine content type
   const fileBuf = fs.readFileSync(filepath);
   const key = path.basename(filepath);
   const contentType = mime.lookup(key) || "binary/octet-stream";
-  const partsCount = Math.ceil(fileBuf.length / FILE_CHUNK_SIZE);
 
-  // Step 2: (server-side) Initiate multipart upload
-  const uploadId = await initiateMultipartUpload(
+  // Step 2: (server-side) Generate presigned URL
+  const presignedUrl = await generatePresignedUrl(
     s3,
     BUCKET_NAME,
     key,
     contentType
   );
 
-  // Step 3: (server-side) Generate presigned URLs
-  const presignedUrls = await generatePresignedUrlsParts(
-    s3,
-    uploadId,
-    partsCount,
-    BUCKET_NAME,
-    key
-  );
-
-  // Step 4: (client-side) Upload parts
-  const parts = await uploadParts(fileBuf, presignedUrls);
-
-  // Step 5: (server-side): Complete multipart upload
-  await completeMultiUpload(s3, BUCKET_NAME, key, uploadId, parts);
+  // Step 3: (client-side) Upload file
+  await uploadFile(fileBuf, presignedUrl);
 }
 
 main();

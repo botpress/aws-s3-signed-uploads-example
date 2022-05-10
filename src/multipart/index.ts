@@ -18,7 +18,7 @@ async function main() {
 
   const filepath = process.argv[2];
 
-  // Step 1: (client-side) determine chunk count, mime type
+  // Step 1: (client-side) determine chunk count, content type
   const fileBuf = fs.readFileSync(filepath);
   const key = path.basename(filepath);
   const contentType = mime.lookup(key) || "binary/octet-stream";
