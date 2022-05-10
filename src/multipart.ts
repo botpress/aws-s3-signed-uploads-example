@@ -8,10 +8,15 @@ import {
 export async function initiateMultipartUpload(
   s3: S3Client,
   bucket: string,
-  key: string
+  key: string,
+  contentType: string
 ) {
   const res = await s3.send(
-    new CreateMultipartUploadCommand({ Bucket: bucket, Key: key })
+    new CreateMultipartUploadCommand({
+      Bucket: bucket,
+      Key: key,
+      ContentType: contentType,
+    })
   );
 
   if (!res.UploadId) {
