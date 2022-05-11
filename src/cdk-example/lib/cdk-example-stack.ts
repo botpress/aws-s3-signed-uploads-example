@@ -10,6 +10,10 @@ export class CdkExampleStack extends Stack {
 
     const bucket = new s3.Bucket(this, "Bucket", {
       removalPolicy: cdk.RemovalPolicy.RETAIN, // RETAIN only for testing purposes
+      lifecycleRules: [
+        // Cost saving measure
+        { abortIncompleteMultipartUploadAfter: cdk.Duration.days(7) },
+      ],
     });
 
     // Here we use a User, but we could also use a Role
