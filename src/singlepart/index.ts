@@ -18,8 +18,9 @@ async function main() {
 
   // Step 1: (client-side) determine content type
   const fileBuf = fs.readFileSync(filepath);
-  const key = path.basename(filepath);
-  const contentType = mime.lookup(key) || "binary/octet-stream";
+  const basename = path.basename(filepath);
+  const contentType = mime.lookup(basename) || "binary/octet-stream";
+  const key = `somefolder/${basename}`;
 
   // Step 2: (server-side) Generate presigned URL
   const presignedUrl = await generatePresignedUrl(

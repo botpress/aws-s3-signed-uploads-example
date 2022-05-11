@@ -20,8 +20,9 @@ async function main() {
 
   // Step 1: (client-side) determine chunk count, content type
   const fileBuf = fs.readFileSync(filepath);
-  const key = path.basename(filepath);
-  const contentType = mime.lookup(key) || "binary/octet-stream";
+  const basename = path.basename(filepath);
+  const contentType = mime.lookup(basename) || "binary/octet-stream";
+  const key = `somefolder/${basename}`;
   const partsCount = Math.ceil(fileBuf.length / FILE_CHUNK_SIZE);
 
   // Step 2: (server-side) Initiate multipart upload
